@@ -1,1 +1,1 @@
-[blog](punchly.github.io)
+[blog](https://punchly.github.io)
