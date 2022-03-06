@@ -1,1 +1,1 @@
-# punchly.github.com
+punchly.github.io
