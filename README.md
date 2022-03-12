@@ -1,1 +1,1 @@
-[blog](https://punchly.github.io/hlsplayer)
+[hlsplayer](https://punchly.github.io/hlsplayer)
