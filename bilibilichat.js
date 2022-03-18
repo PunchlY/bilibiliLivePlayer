@@ -1,4 +1,7 @@
-//弹幕
+//bilibili弹幕 by https://blog.csdn.net/yyznm/article/details/116543107
+
+document.write("<script src='./pako.js'></script>");
+
 var timer = null;
 var ws;
 
