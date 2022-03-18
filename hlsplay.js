@@ -1,6 +1,8 @@
 //by https://github.com/video-dev/hls.js/
 
-document.write("<script src='https://cdn.jsdelivr.net/npm/hls.js@1.1.5/dist/hls.min.js'></script>");
+var newscript = document.createElement('script');
+newscript.src='https://cdn.jsdelivr.net/npm/hls.js@1.1.5/dist/hls.min.js';
+document.head.appendChild(newscript);
 
 function Hlsplay(video,videoSrc) {
     if (Hls.isSupported()) {
