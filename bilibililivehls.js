@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BiliBili直播-白嫖
 // @namespace    https://github.com/PunchlY/hlsplayer
-// @version      0.1
+// @version      0.2
 // @description  直播白嫖
 // @author       punchly
 // @match        https://punchly.github.io/hlsplayer/
