@@ -8,7 +8,7 @@ var hls;
 const config = {
   liveSyncDurationCount: undefined,
   liveMaxLatencyDurationCount: undefined,
-  liveSyncDuration: 2,
+  liveSyncDuration: 1,
   liveMaxLatencyDuration: 3,
 }
 
@@ -27,6 +27,8 @@ function Hlsoff() {
   try {
     hls.stopLoad();
     hls.destory();
+    return;
   } catch (e) {
+    return;
   }
 }

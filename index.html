@@ -23,8 +23,8 @@
   function chat(room_id) {
     WebSocketTest(room_id);
   }
-  function play(videosrc) {
-    Hlsoff();
+  async function play(videosrc) {
+    await Hlsoff();
     Hlsplay(document.getElementById('live_hlsplay'), videosrc);
   }
 </script>
