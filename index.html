@@ -10,9 +10,9 @@
 </head>
 
 <body>
-  <div id='out'>
+  <div id='live'>
     <div id='video'>
-      <video id='live' width="100%" autoplay loop muted></video>
+      <video id='live_hlsplay' width="100%" autoplay loop muted></video>
     </div>
     <div id='chat'>
     </div>
@@ -24,7 +24,7 @@
     WebSocketTest(room_id);
   }
   function play(videosrc) {
-    Hlsplay(document.getElementById('live'), videosrc);
+    Hlsplay(document.getElementById('live_hlsplay'), videosrc);
   }
 </script>
 
