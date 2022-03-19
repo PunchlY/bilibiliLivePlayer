@@ -24,7 +24,3 @@ function Hlsoff() {
   } catch (e) {
   }
 }
-
-function Hlslive(){
-  hls.liveSyncPosition;
-}
