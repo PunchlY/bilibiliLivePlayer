@@ -6,7 +6,7 @@
   <title>hls</title>
 
   <script src='./bilibilichat.js'></script>
-  <script src='./hls.js'></script>
+  <script src='./hlsplay.js'></script>
 </head>
 
 <body>
@@ -24,10 +24,9 @@
     WebSocketTest(room_id);
   }
   function play(videosrc) {
-    Hlsplay(document.getElementById('live_hlsplay'), videosrc);
-  }
-  function off() {
     Hlsoff();
+    Hlsplay(document.getElementById('live_hlsplay'), videosrc);
+    Hlslive();
   }
 </script>
 
