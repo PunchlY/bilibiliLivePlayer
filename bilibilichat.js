@@ -1,7 +1,7 @@
 //bilibili弹幕 by https://blog.csdn.net/yyznm/article/details/116543107
 
 var newscript = document.createElement('script');
-newscript.src='./pako.js';
+newscript.src = './pako.js';
 document.head.appendChild(newscript);
 
 var timer = null;
