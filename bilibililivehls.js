@@ -19,7 +19,6 @@
         $('body').on('click', "#display", function () {
             $("#search_response").toggle();
             $("#live").toggle();
-            $("#live").toggle();
             if ($('#search_response').css('display') == 'none') {
                 $("#display").attr("value", 'open');
             } else {

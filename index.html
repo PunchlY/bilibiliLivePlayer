@@ -2,33 +2,41 @@
 <html lang='zh-CN' dir='ltr'>
 
 <head>
-  <meta charset='utf-8'>
-  <title>hls</title>
+    <meta charset='utf-8'>
+    <title>hls</title>
 
-  <script src='./bilibilichat.js'></script>
-  <script src='./hlsplay.js'></script>
+    <script src='./bilibilisearch.js'></script>
+    <script src='./bilibilichat.js'></script>
+    <script src='./hlsplay.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/hls.js@1.1.5/dist/hls.min.js'></script>
 </head>
 
 <body>
-  <div id='search'>
-  </div>
-  <div id='live'>
-    <div id='video'>
-      <video id='live_hlsplay' width="100%" autoplay loop muted controls></video>
+    <div id='search'>
+        <input name='search' type='text' id='key' placeholder='search'>
+        <input name='search' type='radio' value='live_room' checked='checked'>room
+        <input name='search' type='radio' value='live_user'>user
+        <input name='search' type='number' id='page' placeholder='page' value='1' min='1' max='1'>
+        <div id='search_request'>
+        </div>
     </div>
-    <div id='chat'>
+    <div id='live'>
+        <div id='video'>
+            <video id='live_hlsplay' width='100%' autoplay loop muted controls></video>
+        </div>
+        <div id='chat'>
+        </div>
     </div>
-  </div>
 </body>
 
 <script>
-  function chat(room_id) {
-    WebSocketTest(room_id);
-  }
-  async function play(videosrc) {
-    await Hlsoff();
-    Hlsplay(document.getElementById('live_hlsplay'), videosrc);
-  }
+    function chat(room_id) {
+        WebSocketTest(room_id);
+    }
+    async function play(videosrc) {
+        await hlsStop();
+        await hlsPlay(document.getElementById('live_hlsplay'), videosrc);
+    }
 </script>
 
 </html>

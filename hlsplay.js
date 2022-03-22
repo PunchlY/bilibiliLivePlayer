@@ -6,29 +6,48 @@ document.head.appendChild(newscript);
 
 var hls;
 const config = {
-  liveSyncDurationCount: undefined,
-  liveMaxLatencyDurationCount: undefined,
-  liveSyncDuration: 1,
-  liveMaxLatencyDuration: 3,
+    liveSyncDurationCount: undefined,
+    liveMaxLatencyDurationCount: undefined,
+    liveSyncDuration: 1,
+    liveMaxLatencyDuration: 5,
 }
 
-function Hlsplay(video, videoSrc) {
-  if (Hls.isSupported()) {
-    hls = new Hls(config);
-    hls.loadSource(videoSrc);
-    hls.attachMedia(video);
-  }
-  else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src = videoSrc;
-  }
+function hlsPlay(video, videoSrc) {
+    if (Hls.isSupported()) {
+        hls = new Hls(config);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MEDIA_ATTACHED, function () {
+            hls.loadSource(videoSrc);
+            hls.on(Hls.Events.ERROR, function (event, data) {
+                if (data.fatal) {
+                    switch (data.type) {
+                        case Hls.ErrorTypes.NETWORK_ERROR:
+                            console.log("fatal network error encountered, try to recover");
+                            hls.startLoad();
+                            break;
+                        case Hls.ErrorTypes.MEDIA_ERROR:
+                            console.log("fatal media error encountered, try to recover");
+                            hls.recoverMediaError();
+                            break;
+                        default:
+                            hlsStop();
+                            break;
+                    }
+                }
+            });
+        });
+    }
+    else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = videoSrc;
+    }
 }
 
-function Hlsoff() {
-  try {
-    hls.stopLoad();
-    hls.destory();
-    return;
-  } catch (e) {
-    return;
-  }
+function hlsStop() {
+    try {
+        hls.stopLoad();
+        hls.destroy();
+        return console.log('stop.');
+    } catch (e) {
+        return console.log('stop error.');
+    }
 }
