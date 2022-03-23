@@ -7,17 +7,21 @@
 
     <script src='./bilibilisearch.js'></script>
     <script src='./bilibilichat.js'></script>
+    <script src='./pako.js'></script>
     <script src='./hlsplay.js'></script>
     <script src='https://cdn.jsdelivr.net/npm/hls.js@1.1.5/dist/hls.min.js'></script>
+    <script src='https://code.jquery.com/jquery-3.6.0.min.js'></script>
 </head>
 
 <body>
     <div id='search'>
-        <input name='search' type='text' id='key' placeholder='search'>
-        <input name='search' type='radio' value='live_room' checked='checked'>room
-        <input name='search' type='radio' value='live_user'>user
-        <input name='search' type='number' id='page' placeholder='page' value='1' min='1' max='1'>
-        <div id='search_request'>
+        <div id='search-wrap'>
+            <input name='search' type='text' id='key' placeholder='search'>
+            <input name='search' type='button' id='get' value='>>'>
+        </div>
+        <div id='request'>
+        </div>
+        <div id='info'>
         </div>
     </div>
     <div id='live'>
@@ -30,12 +34,57 @@
 </body>
 
 <script>
+    $(function () {
+        $('#key').on('keypress', function (event) {
+            if (event.keyCode == '13') {
+                search();
+            }
+        })
+        $('#get').on('click', function () {
+            search();
+        });
+    });
     function chat(room_id) {
         WebSocketTest(room_id);
     }
     async function play(videosrc) {
         await hlsStop();
         await hlsPlay(document.getElementById('live_hlsplay'), videosrc);
+    }
+    function search() {
+        let key = $('#key').val();
+        $('#request').empty();
+        $('#request').append(`<ul class='request' id=room>`);
+        $('#request').append(`<ul class='request' id=user>`);
+        searchResponse.get('live_room', key)
+            .then(data => {
+                data.forEach(function (element) {
+                    $('#room').append(
+                        `<li><a title=${element.roomid} href='https://live.bilibili.com/${element.roomid}' onclick='return getLive(${element.roomid})'>
+                        ${element.title}-${element.uname}-${element.online}`
+                    );
+                });
+            });
+        searchResponse.get('live_user', key)
+            .then(data => {
+                data.forEach(function (element) {
+                    $('#user').append(
+                        `<li><a title=${element.roomid} href='https://live.bilibili.com/${element.roomid}' onclick='return getLive(${element.roomid})'>${element.is_live}-${element.uname}`
+                    );
+                });
+            });
+    }
+    function getLive(room_id) {
+        roomPlayInfo.get(room_id)
+            .then(data => {
+                data.forEach(function (element, index) {
+                    console.log(element)
+                    $('#info').append(
+                        `<li><a title=${element} onclick='play("${element}")'>line${index}`
+                    );
+                });
+            });
+        return false;
     }
 </script>
 
