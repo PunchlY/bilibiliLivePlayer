@@ -46,7 +46,7 @@ const roomPlayInfo = {
         current_qn: 10000,
         accept_qn: [],
     },
-    get: (room_id, qn = 10000, protocol = 0) =>
+    get: (room_id, qn = 10000, protocol = 1) =>
         mergeUrl('https://api.live.bilibili.com/xlive/web-room/v2/index/getRoomPlayInfo', {
             protocol: protocol,
             format: '0,1,2',
