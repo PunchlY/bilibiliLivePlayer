@@ -46,7 +46,7 @@
             }
         }).then(() => {
             if (search.data.cors == 0) {
-                return get('http://api.bilibili.com/x/report/click/now')
+                return get('https://api.bilibili.com/x/report/click/now')
                     .catch(() => search.to({ cors: 1 }));
             }
         }).then(() => {
