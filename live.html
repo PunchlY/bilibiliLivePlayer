@@ -81,10 +81,10 @@
         roomPlayInfo.get(room_id, play.protocol[protocol]).then(data => {
             data.forEach(function (element, index) {
                 $('#info').append(
-                    `<li><a title=${element} onclick='play.protocol[${protocol}]("${element}")'>line${index}`
+                    `<li><a title=${element} onclick='play[${protocol}]("${element}")'>line${index}`
                 );
             });
-            if (data[0]) play.protocol[protocol](data[0]);
+            if (data[0]) play[protocol](data[0]);
         });
         return false;
     }
