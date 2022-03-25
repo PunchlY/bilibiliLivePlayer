@@ -30,35 +30,39 @@
 
 <script>
     $(function () {
-        getData(location.search).then(data => {
-            if (data.room_id) {
-                let room_id = data.room_id;
-                set.search.room_id = room_id;
-                document.title = `${room_id}`;
-                getLive(room_id, 0);
-            }
-            if (data.cors) {
-                let iscors = data.cors;
-                set.search.cors = iscors;
-                if (iscors == 0)
-                    get('http://api.bilibili.com/x/report/click/now')
-                        .then(() => {
-                            cors.set(false);
-                        })
-                        .catch(() => {
-                            set.toSearch({ cors: 1 });
-                        });
-                if (iscors == 1) cors.set(true);
-            } else {
-                set.toSearch({ cors: 0 });
-            }
-        });
+        getData(location.search)
+            .then(data => {
+                if (data.room_id) {
+                    let room_id = data.room_id;
+                    search.data.room_id = room_id;
+                    document.title = `${room_id}`;
+                }
+                if (data.cors) {
+                    let iscors = data.cors;
+                    search.data.cors = iscors;
+                    if (iscors == 0)
+                        return get('http://api.bilibili.com/x/report/click/now')
+                            .then(() => {
+                                cors.set(false);
+                            })
+                            .catch(() => {
+                                search.to({ cors: 1 });
+                            });
+                    if (iscors == 1) {
+                        return cors.set(true)
+                    };
+                } else {
+                    return search.to({ cors: 0 });
+                }
+            }).then(() => {
+                getLive(search.data.room_id, 0);
+            });
     });
-    const set = {
-        search: {},
-        toSearch: (data) => {
-            for (let k in data) set.search[k] = data[k];
-            mergeUrl('', set.search)
+    const search = {
+        data: {},
+        to: (data) => {
+            for (let k in data) search.data[k] = data[k];
+            mergeUrl('', search.data)
                 .then(data => location.search = data.substr(1))
         },
     }
