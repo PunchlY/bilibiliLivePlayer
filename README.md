@@ -1,1 +1,1 @@
-[bilibiliLlivePlayer](https://punchly.github.io/bilibiliLlivePlayer)
+[bilibiliLivePlayer](https://punchly.github.io/bilibiliLivePlayer)
