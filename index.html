@@ -5,13 +5,7 @@
     <meta charset='utf-8'>
     <title>bilibiliLiveSearch</title>
 
-    <script src='./pako.js'></script>
-    <script src='./hls.min.js'></script>
-    <script src='./mpegts.js'></script>
     <script src='./bilibilisearch.js'></script>
-    <script src='./bilibilichat.js'></script>
-    <script src='./hlsplay.js'></script>
-    <script src='./flvplay.js'></script>
 
     <script src='https://code.jquery.com/jquery-3.6.0.min.js'></script>
 </head>
@@ -39,20 +33,18 @@
                 }
                 if (data.cors) {
                     let iscors = data.cors;
-                    search.data.cors = iscors;
-                    if (iscors == 0)
-                        return get('http://api.bilibili.com/x/report/click/now')
-                            .then(() => {
-                                cors.set(false);
-                            })
-                            .catch(() => {
-                                search.to({ cors: 1 });
-                            });
-                    if (iscors == 1) {
-                        return cors.set(true)
+                    if (iscors == 0) {
+                        search.data.cors = 0;
+                        cors.set(false);
+                    } else if (iscors == 1) {
+                        search.data.cors = 1;
+                        cors.set(true)
                     };
-                } else {
-                    return search.to({ cors: 0 });
+                }
+            }).then(() => {
+                if (search.data.cors == 0) {
+                    return get('http://api.bilibili.com/x/report/click/now')
+                        .catch(() => search.to({ cors: 1 }));
                 }
             })
             .then(() => {
@@ -68,7 +60,7 @@
         });
     });
     const search = {
-        data: {},
+        data: { cors: 0 },
         to: (data) => {
             for (let k in data) search.data[k] = data[k];
             mergeUrl('', search.data)

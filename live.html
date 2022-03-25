@@ -5,10 +5,11 @@
     <meta charset='utf-8'>
     <title>bilibiliLivePlayer</title>
 
+    <script src='./bilibilisearch.js'></script>
+
     <script src='./pako.js'></script>
     <script src='./hls.min.js'></script>
     <script src='./mpegts.js'></script>
-    <script src='./bilibilisearch.js'></script>
     <script src='./bilibilichat.js'></script>
     <script src='./hlsplay.js'></script>
     <script src='./flvplay.js'></script>
@@ -37,29 +38,39 @@
                     search.data.room_id = room_id;
                     document.title = `${room_id}`;
                 }
+                if (data.protocol) {
+                    let protocol = data.protocol;
+                    if (protocol == 0) {
+                        search.data.protocol = 0;
+                    } else if (protocol == 1) {
+                        search.data.protocol = 1;
+                    }
+                }
                 if (data.cors) {
                     let iscors = data.cors;
-                    search.data.cors = iscors;
-                    if (iscors == 0)
-                        return get('http://api.bilibili.com/x/report/click/now')
-                            .then(() => {
-                                cors.set(false);
-                            })
-                            .catch(() => {
-                                search.to({ cors: 1 });
-                            });
-                    if (iscors == 1) {
-                        return cors.set(true)
+                    if (iscors == 0) {
+                        search.data.cors = 0;
+                        cors.set(false);
+                    } else if (iscors == 1) {
+                        search.data.cors = 1;
+                        cors.set(true)
                     };
-                } else {
-                    return search.to({ cors: 0 });
                 }
             }).then(() => {
-                getLive(search.data.room_id, 0);
+                if (search.data.protocol == 0) {
+                    if (!mpegts.getFeatureList().mseLivePlayback)
+                        return search.to({ protocol: 1 });
+                }
+                if (search.data.cors == 0) {
+                    return get('http://api.bilibili.com/x/report/click/now')
+                        .catch(() => search.to({ cors: 1 }));
+                }
+            }).then(() => {
+                getLive(search.data.room_id, search.data.protocol);
             });
     });
     const search = {
-        data: {},
+        data: { protocol: 0, cors: 0 },
         to: (data) => {
             for (let k in data) search.data[k] = data[k];
             mergeUrl('', search.data)
