@@ -30,30 +30,56 @@
 
 <script>
     $(function () {
-        getdata(location.search).then(data => {
+        getData(location.search).then(data => {
             if (data.room_id) {
                 let room_id = data.room_id;
+                set.search.room_id = room_id;
                 document.title = `${room_id}`;
-                getLive(room_id);
+                getLive(room_id, 0);
+            }
+            if (data.cors) {
+                let iscors = data.cors;
+                set.search.cors = iscors;
+                if (iscors == 0)
+                    get('http://api.bilibili.com/x/report/click/now')
+                        .then(() => {
+                            cors.set(false);
+                        })
+                        .catch(() => {
+                            set.toSearch({ cors: 1 });
+                        });
+                if (iscors == 1) cors.set(true);
+            } else {
+                set.toSearch({ cors: 0 });
             }
         });
     });
-    function getLive(room_id) {
-        roomPlayInfo.get(room_id, 1)
+    const set = {
+        search: {},
+        toSearch: (data) => {
+            for (let k in data) set.search[k] = data[k];
+            mergeUrl('', set.search)
+                .then(data => location.search = data.substr(1))
+        },
+    }
+    function getLive(room_id, protocol = 0) {
+        roomPlayInfo.get(room_id, protocol)
             .then(data => {
                 data.forEach(function (element, index) {
                     $('#info').append(
-                        `<li><a title=${element} onclick='play.hls("${element}")'>line${index}`
+                        `<li><a title=${element} onclick='play.protocol[${protocol}]("${element}")'>line${index}`
                     );
                 });
+                if (data[0]) play.protocol[protocol](data[0]);
             });
         return false;
     }
     function chat(room_id) {
         WebSocketTest(room_id);
     }
-    
+
     const play = {
+        protocol: [(videosrc) => play.flv(videosrc), (videosrc) => play.hls(videosrc)],
         flv: async function (videosrc) {
             await play.destroy();
             await flvLoad(document.getElementById('live_play'), videosrc);

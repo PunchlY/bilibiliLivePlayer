@@ -1,7 +1,7 @@
 //
 
 const cors = {
-    value: false,
+    value: true,
     set: (bool) => cors.value = bool,
 };
 
@@ -12,7 +12,7 @@ const mergeUrl = (url, data) => {
     });
 };
 
-const getdata = (search) => {
+const getData = (search) => {
     return new Promise(function (resolve, reject) {
         try {
             search = search.replace(/[\?&]([^&]+)=([^&]*)/g, ',"$1":"$2"');
@@ -30,7 +30,7 @@ const corsGet = url =>
     fetch(`https://json2jsonp.com/?callback=cbfunc&url=${encodeURIComponent(url)}`)
         .then(r => r.text())
         .then(jsonp => JSON.parse(jsonp.replace(/^cbfunc\((.*)\)$/, '$1')));
-const autoGet = url => (cors.value ? get(url) : corsGet(url));
+const autoGet = url => (cors.value ? corsGet(url) : get(url));
 
 const searchResponse = {
     NumPages: 1,

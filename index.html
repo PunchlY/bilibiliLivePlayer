@@ -29,12 +29,28 @@
 
 <script>
     $(function () {
-        getdata(location.search).then(data => {
+        getData(location.search).then(data => {
             if (data.keyword) {
                 let key = decodeURIComponent(data.keyword);
+                set.search.keyword = key;
                 document.title = `${key}_bilibiliLiveSearch`;
                 $('#key').val(key);
-                search(key, data.page);
+                getSearchResponse(key, data.page);
+            }
+            if (data.cors) {
+                let iscors = data.cors;
+                set.search.cors = iscors;
+                if (iscors == 0)
+                    get('http://api.bilibili.com/x/report/click/now')
+                        .then(() => {
+                            cors.set(false);
+                        })
+                        .catch(() => {
+                            set.toSearch({ cors: 1 });
+                        });
+                if (iscors == 1) cors.set(true);
+            } else {
+                set.toSearch({ cors: 0 });
             }
         });
         $('#key').on('keypress', function (event) {
@@ -47,12 +63,18 @@
         });
     });
     const set = {
+        search: {},
+        toSearch: (data) => {
+            for (let k in data) set.search[k] = data[k];
+            mergeUrl('', set.search)
+                .then(data => location.search = data.substr(1))
+        },
         key: (key = '') => {
             if (key == '') return;
-            location.search = `keyword=${encodeURIComponent(key)}`;
+            set.toSearch({ keyword: key });
         },
     }
-    function search(key = '', page = 1) {
+    function getSearchResponse(key = '', page = 1) {
         if (key == '') return;
         $('#request').empty();
         $('#request').append(`<ul class='request' id=room>`);
