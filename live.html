@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang='zh-CN' dir='ltr'>
+
+<head>
+    <meta charset='utf-8'>
+    <title>bilibiliLivePlayer</title>
+
+    <script src='./pako.js'></script>
+    <script src='./hls.min.js'></script>
+    <script src='./mpegts.js'></script>
+    <script src='./bilibilisearch.js'></script>
+    <script src='./bilibilichat.js'></script>
+    <script src='./hlsplay.js'></script>
+    <script src='./flvplay.js'></script>
+
+    <script src='https://code.jquery.com/jquery-3.6.0.min.js'></script>
+</head>
+
+<body>
+    <div id='live'>
+        <div id='video'>
+            <video id='live_play' width='100%' autoplay loop muted controls></video>
+        </div>
+        <div id='chat'>
+        </div>
+        <div id='info'>
+        </div>
+    </div>
+</body>
+
+<script>
+    $(function () {
+        getdata(location.search).then(data => {
+            if (data.room_id) {
+                let room_id = data.room_id;
+                document.title = `${room_id}`;
+                getLive(room_id);
+            }
+        });
+    });
+    function getLive(room_id) {
+        roomPlayInfo.get(room_id, 1)
+            .then(data => {
+                data.forEach(function (element, index) {
+                    $('#info').append(
+                        `<li><a title=${element} onclick='play.hls("${element}")'>line${index}`
+                    );
+                });
+            });
+        return false;
+    }
+    function chat(room_id) {
+        WebSocketTest(room_id);
+    }
+    
+    const play = {
+        flv: async function (videosrc) {
+            await play.destroy();
+            await flvLoad(document.getElementById('live_play'), videosrc);
+        },
+        hls: async function (videosrc) {
+            await play.destroy();
+            await hlsLoad(document.getElementById('live_play'), videosrc);
+        },
+        destroy: () => {
+            flvDestroy();
+            hlsDestroy();
+        },
+    }
+</script>
+
+</html>

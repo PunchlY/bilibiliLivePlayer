@@ -3,7 +3,7 @@
 
 <head>
     <meta charset='utf-8'>
-    <title>bilibiliLivePlayer</title>
+    <title>bilibiliLiveSearch</title>
 
     <script src='./pako.js'></script>
     <script src='./hls.min.js'></script>
@@ -12,6 +12,7 @@
     <script src='./bilibilichat.js'></script>
     <script src='./hlsplay.js'></script>
     <script src='./flvplay.js'></script>
+
     <script src='https://code.jquery.com/jquery-3.6.0.min.js'></script>
 </head>
 
@@ -23,46 +24,44 @@
         </div>
         <div id='request'>
         </div>
-        <div id='info'>
-        </div>
-    </div>
-    <div id='live'>
-        <div id='video'>
-            <video id='live_hlsplay' width='100%' autoplay loop muted controls></video>
-        </div>
-        <div id='chat'>
-        </div>
     </div>
 </body>
 
 <script>
     $(function () {
+        getdata(location.search).then(data => {
+            if (data.keyword) {
+                let key = decodeURIComponent(data.keyword);
+                document.title = `${key}_bilibiliLiveSearch`;
+                $('#key').val(key);
+                search(key, data.page);
+            }
+        });
         $('#key').on('keypress', function (event) {
             if (event.keyCode == '13') {
-                search();
+                set.key($('#key').val());
             }
         })
         $('#get').on('click', function () {
-            search();
+            set.key($('#key').val());
         });
     });
-    function chat(room_id) {
-        WebSocketTest(room_id);
+    const set = {
+        key: (key = '') => {
+            if (key == '') return;
+            location.search = `keyword=${encodeURIComponent(key)}`;
+        },
     }
-    async function play(videosrc) {
-        await hlsStop();
-        await hlsPlay(document.getElementById('live_hlsplay'), videosrc);
-    }
-    function search() {
-        let key = $('#key').val();
+    function search(key = '', page = 1) {
+        if (key == '') return;
         $('#request').empty();
         $('#request').append(`<ul class='request' id=room>`);
         $('#request').append(`<ul class='request' id=user>`);
-        searchResponse.get('live_room', key)
+        searchResponse.get('live_room', key, page)
             .then(data => {
                 data.forEach(function (element) {
                     $('#room').append(
-                        `<li><a title=${element.roomid} href='https://live.bilibili.com/${element.roomid}' onclick='return getLive(${element.roomid})'>
+                        `<li><a title=${element.roomid} href='https://live.bilibili.com/${element.roomid}' onclick='return openLive(${element.roomid})'>
                         ${element.title}-${element.uname}-${element.online}`
                     );
                 });
@@ -71,21 +70,14 @@
             .then(data => {
                 data.forEach(function (element) {
                     $('#user').append(
-                        `<li><a title=${element.roomid} href='https://live.bilibili.com/${element.roomid}' onclick='return getLive(${element.roomid})'>${element.is_live}-${element.uname}`
+                        `<li><a title=${element.roomid} href='https://live.bilibili.com/${element.roomid}' onclick='return openLive(${element.roomid})'>${element.is_live}-${element.uname}`
                     );
                 });
             });
     }
-    function getLive(room_id) {
-        roomPlayInfo.get(room_id)
-            .then(data => {
-                data.forEach(function (element, index) {
-                    console.log(element)
-                    $('#info').append(
-                        `<li><a title=${element} onclick='play("${element}")'>line${index}`
-                    );
-                });
-            });
+    function openLive(room_id) {
+        let obj = window.open(`./live.html?room_id=${room_id}`, '', 'height=250, width=250,toolbar=0,menubar=0,location=0');
+        obj.document.close();
         return false;
     }
 </script>

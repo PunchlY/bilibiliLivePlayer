@@ -12,6 +12,19 @@ const mergeUrl = (url, data) => {
     });
 };
 
+const getdata = (search) => {
+    return new Promise(function (resolve, reject) {
+        try {
+            search = search.replace(/[\?&]([^&]+)=([^&]*)/g, ',"$1":"$2"');
+            search = JSON.parse(`{${search.substr(1)}}`)
+            resolve(search);
+        }
+        catch (e) {
+            resolve({});
+        }
+    });
+}
+
 const get = url => fetch(url).then(r => r.json());
 const corsGet = url =>
     fetch(`https://json2jsonp.com/?callback=cbfunc&url=${encodeURIComponent(url)}`)
@@ -46,7 +59,7 @@ const roomPlayInfo = {
         current_qn: 10000,
         accept_qn: [],
     },
-    get: (room_id, qn = 10000, protocol = 1) =>
+    get: (room_id, protocol = 0, qn = 10000) => // protocol : flv = 0 , hls = 1
         mergeUrl('https://api.live.bilibili.com/xlive/web-room/v2/index/getRoomPlayInfo', {
             protocol: protocol,
             format: '0,1,2',
