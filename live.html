@@ -2,7 +2,22 @@
 <html lang='zh-CN' dir='ltr'>
 
 <head>
-    <meta charset='utf-8'>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport"
+        content="width=device-width,initial-scale=1.0,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <meta name="referrer" content="no-referrer">
+    
+    <link rel="icon" href="https://www.bilibili.com/favicon.ico" type="image/x-icon" crossorigin="anonymous">
+    <link rel="shortcut icon" href="https://www.bilibili.com/favicon.ico" type="image/x-icon" crossorigin="anonymous">
+
+    <link rel="dns-prefetch" href="https://api.live.bilibili.com/">
+    <link rel="dns-prefetch" href="https://api.live.bilibili.com/">
+    <link rel="dns-prefetch" href="https://api.live.bilibili.com/">
+    <link rel="dns-prefetch" href="https://api.bilibili.com/">
+    <link rel="dns-prefetch" href="https://api.live.bilibili.com/">
+    <link rel="dns-prefetch" href="https://json2jsonp.com/">
+
     <title>bilibiliLivePlayer</title>
 
     <script src='./bilibilisearch.js'></script>
@@ -61,7 +76,7 @@
                     return search.to({ protocol: 'hls' });
             }
             if (search.data.cors == 0) {
-                return get('https://api.bilibili.com/x/report/click/now')
+                return fetch('https://api.bilibili.com/x/report/click/now')
                     .catch(() => search.to({ cors: 1 }));
             }
         }).then(() => {
