@@ -27,10 +27,14 @@ const getData = (search) => {
 
 const get = url => fetch(url).then(r => r.json());
 const corsGet = url =>
-    fetch(`https://json2jsonp.com/?callback=cbfunc&url=${encodeURIComponent(url)}`)
-        .then(r => r.text())
-        .then(jsonp => JSON.parse(jsonp.replace(/^cbfunc\((.*)\)$/, '$1')));
-const autoGet = url => (cors.value ? corsGet(url) : get(url));
+    mergeUrl('https://json2jsonp.com/', {// callback : cbfunc
+        callback: 'cbfunc',
+        url: url,
+    }).then(url => fetch(url)
+    ).then(r => r.text()
+    ).then(jsonp => JSON.parse(jsonp.replace(/^cbfunc\((.*)\)$/, '$1'))
+    );
+const autoGet = url => cors.value ? corsGet(url) : get(url);
 
 const searchResponse = {
     NumPages: 1,
@@ -39,19 +43,19 @@ const searchResponse = {
             search_type: type,
             keyword: key,
             page: page,
-        })
-            .then(url => autoGet(url))
-            .then(json => {
-                return new Promise(function (resolve, reject) {
-                    try {
-                        searchResponse.NumPages = json.data.numPages;
-                        resolve(json.data.result);
-                    }
-                    catch (e) {
-                        resolve([]);
-                    }
-                });
-            }),
+        }).then(url =>
+            autoGet(url)
+        ).then(json => {
+            return new Promise(function (resolve, reject) {
+                try {
+                    searchResponse.NumPages = json.data.numPages;
+                    resolve(json.data.result);
+                }
+                catch (e) {
+                    resolve([]);
+                }
+            });
+        }),
 };
 
 const roomPlayInfo = {
@@ -68,48 +72,47 @@ const roomPlayInfo = {
             qn: qn,
             platform: 'h5',
             ptype: 8,
-        })
-            .then(url => autoGet(url))
-            .then(json => {
-                return new Promise(function (resolve, reject) {
-                    try {
-                        roomPlayInfo.data = {
-                            current_qn: json.data.playurl_info.playurl.stream[0].format[0].codec[0].current_qn,
-                            accept_qn: [],
-                        };
-                        let url_info = [];
-                        json.data.playurl_info.playurl.stream[0].format.forEach(function (format) {
-                            format.codec.forEach(function (codec) {
-                                base_url = codec.base_url;
-                                codec.url_info.forEach(function (element) {
-                                    url_info.push(`${element.host}${base_url}${element.extra}`);
-                                });
-                                codec.accept_qn.forEach(function (element) {
-                                    roomPlayInfo.data.accept_qn.push(element);
-                                });
+        }).then(url =>
+            autoGet(url)
+        ).then(json => {
+            return new Promise(function (resolve, reject) {
+                try {
+                    roomPlayInfo.data = {
+                        current_qn: json.data.playurl_info.playurl.stream[0].format[0].codec[0].current_qn,
+                        accept_qn: [],
+                    };
+                    let url_info = [];
+                    json.data.playurl_info.playurl.stream[0].format.forEach(function (format) {
+                        format.codec.forEach(function (codec) {
+                            base_url = codec.base_url;
+                            codec.url_info.forEach(function (element) {
+                                url_info.push(`${element.host}${base_url}${element.extra}`);
+                            });
+                            codec.accept_qn.forEach(function (element) {
+                                roomPlayInfo.data.accept_qn.push(element);
                             });
                         });
-                        roomPlayInfo.data.accept_qn = [...new Set(roomPlayInfo.data.accept_qn)];
-                        resolve(url_info);
-                    }
-                    catch (e) {
-                        resolve([]);
-                    }
-                });
-            }),
+                    });
+                    roomPlayInfo.data.accept_qn = [...new Set(roomPlayInfo.data.accept_qn)];
+                    resolve(url_info);
+                }
+                catch (e) {
+                    resolve([]);
+                }
+            });
+        }),
 };
 
 const liveIcon = {
     data: {},
-    get: () =>
-        autoGet('https://api.live.bilibili.com/room/v1/Area/getList')
-            .then(json => {
-                liveIcon.data = {};
-                json.data.forEach(function (parent) {
-                    liveIcon.data[parent.name] = {}
-                    parent.list.forEach(function (element) {
-                        liveIcon.data[parent.name][element.name] = element.pic;
-                    });
+    get: () => autoGet('https://api.live.bilibili.com/room/v1/Area/getList')
+        .then(json => {
+            liveIcon.data = {};
+            json.data.forEach(function (parent) {
+                liveIcon.data[parent.name] = {}
+                parent.list.forEach(function (element) {
+                    liveIcon.data[parent.name][element.name] = element.pic;
                 });
-            }),
+            });
+        }),
 };

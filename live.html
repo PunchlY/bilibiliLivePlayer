@@ -31,70 +31,70 @@
 
 <script>
     $(function () {
-        getData(location.search)
-            .then(data => {
-                if (data.room_id) {
-                    let room_id = data.room_id;
-                    search.data.room_id = room_id;
-                    document.title = `${room_id}`;
+        getData(location.search).then(data => {
+            if (data.room_id) {
+                let room_id = data.room_id;
+                search.data.room_id = room_id;
+                document.title = `${room_id}`;
+            }
+            if (data.protocol) {
+                let protocol = data.protocol;
+                if (protocol == 'flv') {
+                    search.data.protocol = 'flv';
+                } else if (protocol == 'hls') {
+                    search.data.protocol = 'hls';
                 }
-                if (data.protocol) {
-                    let protocol = data.protocol;
-                    if (protocol == 0) {
-                        search.data.protocol = 0;
-                    } else if (protocol == 1) {
-                        search.data.protocol = 1;
-                    }
-                }
-                if (data.cors) {
-                    let iscors = data.cors;
-                    if (iscors == 0) {
-                        search.data.cors = 0;
-                        cors.set(false);
-                    } else if (iscors == 1) {
-                        search.data.cors = 1;
-                        cors.set(true)
-                    };
-                }
-            }).then(() => {
-                if (search.data.protocol == 0) {
-                    if (!mpegts.getFeatureList().mseLivePlayback)
-                        return search.to({ protocol: 1 });
-                }
-                if (search.data.cors == 0) {
-                    return get('http://api.bilibili.com/x/report/click/now')
-                        .catch(() => search.to({ cors: 1 }));
-                }
-            }).then(() => {
-                getLive(search.data.room_id, search.data.protocol);
-            });
+            }
+            if (data.cors) {
+                let iscors = data.cors;
+                if (iscors == 0) {
+                    search.data.cors = 0;
+                    cors.set(false);
+                } else if (iscors == 1) {
+                    search.data.cors = 1;
+                    cors.set(true)
+                };
+            }
+        }).then(() => {
+            if (search.data.protocol == 'flv') {
+                if (!mpegts.getFeatureList().mseLivePlayback)
+                    return search.to({ protocol: 'hls' });
+            }
+            if (search.data.cors == 0) {
+                return get('http://api.bilibili.com/x/report/click/now')
+                    .catch(() => search.to({ cors: 1 }));
+            }
+        }).then(() => {
+            getLive(search.data.room_id, search.data.protocol);
+        });
     });
+
     const search = {
-        data: { protocol: 0, cors: 0 },
+        data: { protocol: 'flv', cors: 0 },
         to: (data) => {
             for (let k in data) search.data[k] = data[k];
-            mergeUrl('', search.data)
-                .then(data => location.search = data.substr(1))
+            mergeUrl('', search.data).then(data => location.search = data.substr(1))
         },
     }
-    function getLive(room_id, protocol = 0) {
-        roomPlayInfo.get(room_id, protocol)
-            .then(data => {
-                data.forEach(function (element, index) {
-                    $('#info').append(
-                        `<li><a title=${element} onclick='play.protocol[${protocol}]("${element}")'>line${index}`
-                    );
-                });
-                if (data[0]) play.protocol[protocol](data[0]);
+
+    function getLive(room_id, protocol = 'flv') {
+        roomPlayInfo.get(room_id, play.protocol[protocol]).then(data => {
+            data.forEach(function (element, index) {
+                $('#info').append(
+                    `<li><a title=${element} onclick='play.protocol[${protocol}]("${element}")'>line${index}`
+                );
             });
+            if (data[0]) play.protocol[protocol](data[0]);
+        });
         return false;
     }
+
     function chat(room_id) {
         WebSocketTest(room_id);
     }
 
     const play = {
-        protocol: [(videosrc) => play.flv(videosrc), (videosrc) => play.hls(videosrc)],
+        protocol: { flv: 0, hls: 1 },
         flv: async function (videosrc) {
             await play.destroy();
             await flvLoad(document.getElementById('live_play'), videosrc);

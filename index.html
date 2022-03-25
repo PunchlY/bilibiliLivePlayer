@@ -23,61 +23,65 @@
 
 <script>
     $(function () {
-        getData(location.search)
-            .then(data => {
-                if (data.keyword) {
-                    let key = decodeURIComponent(data.keyword);
-                    search.data.keyword = key;
-                    document.title = `${key}_bilibiliLiveSearch`;
-                    $('#key').val(key);
-                }
-                if (data.cors) {
-                    let iscors = data.cors;
-                    if (iscors == 0) {
-                        search.data.cors = 0;
-                        cors.set(false);
-                    } else if (iscors == 1) {
-                        search.data.cors = 1;
-                        cors.set(true)
-                    };
-                }
-            }).then(() => {
-                if (search.data.cors == 0) {
-                    return get('http://api.bilibili.com/x/report/click/now')
-                        .catch(() => search.to({ cors: 1 }));
+        getData(location.search).then(data => {
+            if (data.keyword) {
+                let key = decodeURIComponent(data.keyword);
+                search.data.keyword = key;
+                document.title = `${key}_bilibiliLiveSearch`;
+                $('#key').val(key);
+            }
+            if (data.type) {
+                let type = data.type;
+                search.data.type = type;
+            }
+            if (data.cors) {
+                let iscors = data.cors;
+                if (iscors == 0) {
+                    search.data.cors = 0;
+                    cors.set(false);
+                } else if (iscors == 1) {
+                    search.data.cors = 1;
+                    cors.set(true)
+                };
+            }
+        }).then(() => {
+            if (search.data.cors == 0) {
+                return get('http://api.bilibili.com/x/report/click/now')
+                    .catch(() => search.to({ cors: 1 }));
+            }
+        }).then(() => {
+            return getSearchResponse[search.data.type](search.data.keyword, search.data.page);
+        }).then(() => {
+            $('#key').on('keypress', function (event) {
+                if (event.keyCode == '13') {
+                    search.key($('#key').val());
                 }
             })
-            .then(() => {
-                return getSearchResponse(search.data.keyword, search.data.page);
-            });
-        $('#key').on('keypress', function (event) {
-            if (event.keyCode == '13') {
+            $('#get').on('click', function () {
                 search.key($('#key').val());
-            }
-        })
-        $('#get').on('click', function () {
-            search.key($('#key').val());
+            });
         });
     });
+
     const search = {
-        data: { cors: 0 },
+        data: { type: 'live', cors: 0 },
         to: (data) => {
             for (let k in data) search.data[k] = data[k];
-            mergeUrl('', search.data)
-                .then(data => location.search = data.substr(1))
+            mergeUrl('', search.data).then(data => location.search = data.substr(1));
         },
         key: (key = '') => {
             if (key == '') return;
             search.to({ keyword: key });
         },
     }
-    function getSearchResponse(key = '', page = 1) {
-        if (key == '') return;
-        $('#request').empty();
-        $('#request').append(`<ul class='request' id=room>`);
-        $('#request').append(`<ul class='request' id=user>`);
-        searchResponse.get('live_room', key, page)
-            .then(data => {
+
+    const getSearchResponse = {
+        live: (key = '', page = 1) => {
+            if (key == '') return;
+            $('#request').empty();
+            $('#request').append(`<ul class='request' id=room>`);
+            $('#request').append(`<ul class='request' id=user>`);
+            searchResponse.get('live_room', key, page).then(data => {
                 data.forEach(function (element) {
                     $('#room').append(
                         `<li><a title=${element.roomid} href='https://live.bilibili.com/${element.roomid}' onclick='return openLive(${element.roomid})'>
@@ -85,15 +89,28 @@
                     );
                 });
             });
-        searchResponse.get('live_user', key)
-            .then(data => {
+            searchResponse.get('live_user', key).then(data => {
                 data.forEach(function (element) {
                     $('#user').append(
                         `<li><a title=${element.roomid} href='https://live.bilibili.com/${element.roomid}' onclick='return openLive(${element.roomid})'>${element.is_live}-${element.uname}`
                     );
                 });
             });
+        },
+        live_user: (key = '', page = 1) => {
+            if (key == '') return;
+            $('#request').empty()
+            $('#request').append(`<ul class='request' id=user>`);
+            searchResponse.get('live_user', key, page).then(data => {
+                data.forEach(function (element) {
+                    $('#user').append(
+                        `<li><a title=${element.roomid} href='https://live.bilibili.com/${element.roomid}' onclick='return openLive(${element.roomid})'>${element.is_live}-${element.uname}`
+                    );
+                });
+            });
+        },
     }
+
     function openLive(room_id) {
         let obj = window.open(`./live.html?room_id=${room_id}`, '', 'height=250, width=250,toolbar=0,menubar=0,location=0');
         obj.document.close();
