@@ -11,6 +11,8 @@
     <link rel="icon" href="https://www.bilibili.com/favicon.ico" type="image/x-icon" crossorigin="anonymous">
     <link rel="shortcut icon" href="https://www.bilibili.com/favicon.ico" type="image/x-icon" crossorigin="anonymous">
 
+    <link rel="stylesheet" type="text/css" href="chat.css">
+
     <title>bilibiliLiveChat</title>
 
     <script src='./bilibilisearch.js'></script>
@@ -23,33 +25,16 @@
 
 <body>
     <div id='chat'>
-        <ul id='DANMU_MSG'>
-        </ul>
-        <div id='INTERACT_WORD'>
+        <div id='danmu'>
+            <div id='_danmu'>
+            </div>
+            <ul id='danmuInfo'>
+            </ul>
+        </div>
+        <div id='interactWord'>
         </div>
     </div>
 </body>
-
-<style>
-    #chat,
-    body,
-    html {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        width: 100%;
-    }
-
-    #chat {
-        display: flex;
-        flex-direction: column;
-    }
-
-    #DANMU_MSG {
-        overflow: auto;
-        flex: 1;
-    }
-</style>
 
 <script>
     $(function () {
@@ -62,6 +47,9 @@
         }).then(() => {
             chat(search.data.room_id);
         }).then(() => {
+            $('#interactWord').html(
+                `<span class='interact'>; )</span>`
+            );
             ws.onmessage = function (evt) {
                 let blob = evt.data;
                 decode(blob, function (packet) {
@@ -69,20 +57,15 @@
                         packet.body.forEach(function (element) {
                             //console.log(element);
                             if (element.cmd == 'DANMU_MSG') {
-                                let idBottom = false;
-                                if ($('#DANMU_MSG')[0].scrollTop >= $('#DANMU_MSG')[0].scrollHeight - $('#DANMU_MSG').height())
-                                    idBottom = true;
-                                $('#DANMU_MSG').append(
-                                    `<li><a href='https://space.bilibili.com/${element.info[2][0]}' onclick='return false'>${element.info[2][1]}</a> : ${element.info[1]}`
+                                $('#danmuInfo').append(
+                                    `<li class='danmuItem'><a class='name'href='https://space.bilibili.com/${element.info[2][0]}' onclick='return false'>${element.info[2][1]}: </a><span class='message'>${element.info[1]}</span>`
                                 );
                                 if (num.danmu.value++ >= num.danmu.max)
                                     $("ul li:eq(0)").remove();
-                                //$('#DANMU_MSG').scrollTop(0)
-                                if (idBottom)
-                                    $('#DANMU_MSG')[0].scrollTop = $('#DANMU_MSG')[0].scrollHeight;
+                                $('#danmu')[0].scrollTop = $('#danmu')[0].scrollHeight;
                             } else if (element.cmd == 'INTERACT_WORD') {
-                                $('#INTERACT_WORD').text(
-                                    `进入直播: ${element.data.uname}`
+                                $('#interactWord').html(
+                                    `<span class='interact'>进入直播间: ${element.data.uname}</span>`
                                 );
                             }
                         });
