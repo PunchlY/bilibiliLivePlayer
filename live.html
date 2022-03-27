@@ -10,10 +10,15 @@
 
     <link rel="icon" href="https://www.bilibili.com/favicon.ico" type="image/x-icon" crossorigin="anonymous">
     <link rel="shortcut icon" href="https://www.bilibili.com/favicon.ico" type="image/x-icon" crossorigin="anonymous">
-
-    <link rel="dns-prefetch" href="https://api.live.bilibili.com/">
-    <link rel="dns-prefetch" href="https://api.live.bilibili.com/">
-    <link rel="dns-prefetch" href="https://api.live.bilibili.com/">
+    
+    <link rel="dns-prefetch" href="https://d1--cn-gotcha00.bilivideo.com/">
+    <link rel="dns-prefetch" href="https://d1--cn-gotcha01.bilivideo.com/">
+    <link rel="dns-prefetch" href="https://d1--cn-gotcha02.bilivideo.com/">
+    <link rel="dns-prefetch" href="https://d1--cn-gotcha03.bilivideo.com/">
+    <link rel="dns-prefetch" href="https://d1--cn-gotcha04.bilivideo.com/">
+    <link rel="dns-prefetch" href="https://d1--cn-gotcha05.bilivideo.com/">
+    <link rel="dns-prefetch" href="https://d1--cn-gotcha06.bilivideo.com/">
+    <link rel="dns-prefetch" href="https://d1--cn-gotcha07.bilivideo.com/">
     <link rel="dns-prefetch" href="https://api.bilibili.com/">
     <link rel="dns-prefetch" href="https://api.live.bilibili.com/">
     <link rel="dns-prefetch" href="https://json2jsonp.com/">
@@ -22,10 +27,8 @@
 
     <script src='./bilibilisearch.js'></script>
 
-    <script src='./pako.js'></script>
     <script src='./hls.min.js'></script>
     <script src='./mpegts.js'></script>
-    <script src='./bilibilichat.js'></script>
     <script src='./hlsplay.js'></script>
     <script src='./flvplay.js'></script>
 
@@ -103,10 +106,6 @@
             if (data[0]) play[protocol](data[0]);
         });
         return false;
-    }
-
-    function chat(room_id) {
-        WebSocketTest(room_id);
     }
 
     const play = {

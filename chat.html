@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang='zh-CN' dir='ltr'>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport"
+        content="width=device-width,initial-scale=1.0,maximum-scale=1,minimum-scale=1,user-scalable=no">
+    <meta name="referrer" content="no-referrer">
+
+    <link rel="icon" href="https://www.bilibili.com/favicon.ico" type="image/x-icon" crossorigin="anonymous">
+    <link rel="shortcut icon" href="https://www.bilibili.com/favicon.ico" type="image/x-icon" crossorigin="anonymous">
+
+    <title>bilibiliLiveChat</title>
+
+    <script src='./bilibilisearch.js'></script>
+
+    <script src='./pako.js'></script>
+    <script src='./bilibilichat.js'></script>
+
+    <script src='https://code.jquery.com/jquery-3.6.0.min.js'></script>
+</head>
+
+<body>
+    <div id='chat'>
+        <ul id='DANMU_MSG'>
+        </ul>
+        <div id='INTERACT_WORD'>
+        </div>
+    </div>
+</body>
+
+<style>
+    #chat,
+    body,
+    html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+    }
+
+    #chat {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #DANMU_MSG {
+        overflow: auto;
+        flex: 1;
+    }
+</style>
+
+<script>
+    $(function () {
+        getData(location.search).then(data => {
+            if (data.room_id) {
+                let room_id = data.room_id;
+                search.data.room_id = room_id;
+                document.title = `${room_id}`;
+            }
+        }).then(() => {
+            chat(search.data.room_id);
+        }).then(() => {
+            ws.onmessage = function (evt) {
+                let blob = evt.data;
+                decode(blob, function (packet) {
+                    if (packet.op == 5) {
+                        packet.body.forEach(function (element) {
+                            //console.log(element);
+                            if (element.cmd == 'DANMU_MSG') {
+                                let idBottom = false;
+                                if ($('#DANMU_MSG')[0].scrollTop >= $('#DANMU_MSG')[0].scrollHeight - $('#DANMU_MSG').height())
+                                    idBottom = true;
+                                $('#DANMU_MSG').append(
+                                    `<li><a href='https://space.bilibili.com/${element.info[2][0]}' onclick='return false'>${element.info[2][1]}</a> : ${element.info[1]}`
+                                );
+                                if (num.danmu.value++ >= num.danmu.max)
+                                    $("ul li:eq(0)").remove();
+                                //$('#DANMU_MSG').scrollTop(0)
+                                if (idBottom)
+                                    $('#DANMU_MSG')[0].scrollTop = $('#DANMU_MSG')[0].scrollHeight;
+                            } else if (element.cmd == 'INTERACT_WORD') {
+                                $('#INTERACT_WORD').text(
+                                    `进入直播: ${element.data.uname}`
+                                );
+                            }
+                        });
+                    }
+                });
+            };
+        });
+    });
+
+    const num = {
+        danmu: {
+            max: 100,
+            value: 0,
+        },
+    }
+    const search = {
+        data: {},
+        to: (data) => {
+            for (let k in data) search.data[k] = data[k];
+            mergeUrl('', search.data).then(data => location.search = data.substr(1))
+        },
+    }
+    function chat(room_id) {
+        if (search.data.room_id) WebSocketTest(room_id);
+    }
+</script>
+
+</html>
