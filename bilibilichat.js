@@ -34,6 +34,16 @@ function WebSocketTest(roomid) {
         if (timer != null)
             clearInterval(timer);
     };
+    ws.onmessage = function (evt) {
+        let blob = evt.data;
+        decode(blob, function (packet) {
+            if (packet.op == 5) {
+                packet.body.forEach(function (element) {
+                    analyDanmuPacket(element)
+                });
+            }
+        });
+    };
 }
 
 var textDecoder = new TextDecoder('utf-8');

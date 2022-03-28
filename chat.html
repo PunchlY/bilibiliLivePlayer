@@ -50,28 +50,6 @@
             $('#interactWord').html(
                 `<span class='interact'>; )</span>`
             );
-            ws.onmessage = function (evt) {
-                let blob = evt.data;
-                decode(blob, function (packet) {
-                    if (packet.op == 5) {
-                        packet.body.forEach(function (element) {
-                            //console.log(element);
-                            if (element.cmd == 'DANMU_MSG') {
-                                $('#danmuInfo').append(
-                                    `<li class='danmuItem'><a class='name'href='https://space.bilibili.com/${element.info[2][0]}' onclick='return false'>${element.info[2][1]}: </a><span class='message'>${element.info[1]}</span>`
-                                );
-                                if (num.danmu.value++ >= num.danmu.max)
-                                    $("ul li:eq(0)").remove();
-                                $('#danmu')[0].scrollTop = $('#danmu')[0].scrollHeight;
-                            } else if (element.cmd == 'INTERACT_WORD') {
-                                $('#interactWord').html(
-                                    `<span class='interact'>进入直播间: ${element.data.uname}</span>`
-                                );
-                            }
-                        });
-                    }
-                });
-            };
         });
     });
 
@@ -90,6 +68,21 @@
     }
     function chat(room_id) {
         if (search.data.room_id) WebSocketTest(room_id);
+    }
+    function analyDanmuPacket(data) {
+        //console.log(data);
+        if (data.cmd == 'DANMU_MSG') {
+            $('#danmuInfo').append(
+                `<li class='danmuItem'><a class='name'href='https://space.bilibili.com/${data.info[2][0]}' onclick='return false'>${data.info[2][1]}: </a><span class='message'>${data.info[1]}</span>`
+            );
+            if (num.danmu.value++ >= num.danmu.max)
+                $("ul li:eq(0)").remove();
+            $('#danmu')[0].scrollTop = $('#danmu')[0].scrollHeight;
+        } else if (data.cmd == 'INTERACT_WORD') {
+            $('#interactWord').html(
+                `<span class='interact'>进入直播间: ${data.data.uname}</span>`
+            );
+        }
     }
 </script>
 
